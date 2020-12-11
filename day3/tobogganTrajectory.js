@@ -4,7 +4,13 @@ const readline = require('readline');
 
 // if they reach index 31 go back to start
 const TREE_MAP = []
-const SLOPE = { x: 3, y: 1 }
+const SLOPE_LIST = [
+    { x: 3, y: 1 },
+    { x: 1, y: 1},
+    { x: 5, y: 1 },
+    { x: 7, y: 1 },
+    { x: 1, y: 2 }
+]
 
 async function readInputFile(){
     const file = readline.createInterface({
@@ -19,28 +25,47 @@ async function readInputFile(){
 }
 
 readInputFile().then(function(){
-   console.log(traverseRow())
+    let partOneAnswer = traverseRow(SLOPE_LIST[0])
+    console.log("Part 1", partOneAnswer)
+    
+    let allSlopeValues = SLOPE_LIST.map(slope => {
+        return traverseRow(slope)
+    })
+    let partTwoAnswer = allSlopeValues.reduce((a, b)=> a * b, 1)
+    console.log("Part 2", partTwoAnswer)
 })
-[[1,2,3], [1,2,3]]
 
-
-function traverseRow(){
-    var rowIndex = 0;
+function traverseRow(slope){
     let columnIndex = 0;
     let treeCount = 0;
-
-    TREE_MAP.forEach((treeRow) => {
-        if (treeRow[columnIndex] == "#"){
+    
+    for (i = 0; i < TREE_MAP.length; i++){
+        let addingOne = false
+         if (TREE_MAP[i][columnIndex] == "#"){
+            addingOne = true
             treeCount++;
         }
-        if (columnIndex + 3 > 30){
-            let onesDigit = (columnIndex + 3).toString().split("")[-1];
-            let newColumnIndex = onesDigit - 1 // account for 0 index
-            columnIndex = newColumnIndex
-        }else {
-            columnIndex += 3
+        console.table({
+            "Row (i)": i,
+            "columnIndex": columnIndex,
+            "value": TREE_MAP[i][columnIndex],
+            "incrementing": addingOne,
+            "total": treeCount
+        })
+
+        columnIndex += slope.x;
+        if (columnIndex > 30) {
+            let onesDigit = (columnIndex).toString().split("");
+            onesDigit = onesDigit[onesDigit.length - 1];
+            columnIndex =  parseInt(onesDigit) - 1;
+            console.log("greater than 30 setting index to", columnIndex)
         }
-    })
+
+        if (slope.y > 1){
+            i += slope.y - 1
+        }
+
+    }
 
     return treeCount;
 }
